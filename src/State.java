@@ -12,6 +12,8 @@ public class State {
     private boolean terminal = false;
     private boolean isMachine = false;
     private int Chess;
+    private int numBlack = 2;
+    private int numWhite = 2;
     private int leadAction = -1;
     /*
     private int[][] state = {
@@ -179,12 +181,14 @@ public class State {
         int n = j;
         leadAction = action;
         state[i][j] = Chess;
+        int cnt = 1;
         if((dir & Constants.NORTH) > 0) {
             --m;
             while(state[m][n] + Chess == 0) {
                 state[m--][n] = Chess;
+                cnt++;
             }
-            state[m][n] = Chess;
+            //state[m][n] = Chess;
         }
         m = i;
         n = j;
@@ -193,8 +197,9 @@ public class State {
             ++n;
             while(state[m][n] + Chess == 0) {
                 state[m--][n++] = Chess;
+                cnt++;
             }
-            state[m][n] = Chess;
+            //state[m][n] = Chess;
         }
         m = i;
         n = j;
@@ -202,8 +207,9 @@ public class State {
             ++n;
             while(state[m][n] + Chess == 0) {
                 state[m][n++] = Chess;
+                cnt++;
             }
-            state[m][n] = Chess;
+            //state[m][n] = Chess;
         }
         m = i;
         n = j;
@@ -212,8 +218,9 @@ public class State {
             ++n;
             while(state[m][n] + Chess == 0) {
                 state[m++][n++] = Chess;
+                cnt++;
             }
-            state[m][n] = Chess;
+            //state[m][n] = Chess;
         }
         m = i;
         n = j;
@@ -221,8 +228,9 @@ public class State {
             ++m;
             while(state[m][n] + Chess == 0) {
                 state[m++][n] = Chess;
+                cnt++;
             }
-            state[m][n] = Chess;
+            //state[m][n] = Chess;
         }
         m = i;
         n = j;
@@ -231,8 +239,9 @@ public class State {
             --n;
             while(state[m][n] + Chess == 0) {
                 state[m++][n--] = Chess;
+                cnt++;
             }
-            state[m][n] = Chess;
+            //state[m][n] = Chess;
         }
         m = i;
         n = j;
@@ -240,8 +249,9 @@ public class State {
             --n;
             while(state[m][n] + Chess == 0) {
                 state[m][n--] = Chess;
+                cnt++;
             }
-            state[m][n] = Chess;
+            //state[m][n] = Chess;
         }
         m = i;
         n = j;
@@ -250,11 +260,16 @@ public class State {
             --n;
             while(state[m][n] + Chess == 0) {
                 state[m--][n--] = Chess;
+                cnt++;
             }
-            state[m][n] = Chess;
+            //state[m][n] = Chess;
         }
-
-
+        if(Chess == Constants.BLACK) {
+            numBlack += cnt;
+        }
+        else {
+            numWhite += cnt;
+        }
     }
     public HashMap<Integer, Integer> getActionSet() {
         return actionSet;
@@ -400,6 +415,7 @@ public class State {
         return terminal;
     }
     public int getWinner() {
+        /*
         int cnt1 = 0, cnt2 = 0;
         for(int i = 0; i < 8; i++) {
             for(int j = 0; j < 8; j++) {
@@ -411,7 +427,8 @@ public class State {
                 }
             }
         }
-        return cnt1 > cnt2 ? Constants.BLACK : (cnt1 == cnt2 ? 0 : Constants.WHITE);
+        */
+        return numBlack > numWhite ? Constants.BLACK : (numBlack == numWhite ? 0 : Constants.WHITE);
     }
     public int[][] getState() {
         return state.clone();
@@ -432,6 +449,8 @@ public class State {
             s.dirSet = (HashMap<Integer, Integer>) this.dirSet.clone();
         }
         s.leadAction = this.leadAction;
+        s.numWhite = this.numWhite;
+        s.numBlack = this.numBlack;
         return s;
     }
     public void Display() {
