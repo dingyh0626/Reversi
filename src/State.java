@@ -275,8 +275,40 @@ public class State {
         return actionSet;
     }
     public int getRandomAction() {
-
-
+        int size = actionSet.size();
+        int i = 0;
+        int maxIndex = -1;
+        int maxReward = -100;
+        if(size == 0) {
+            return -1;
+        }
+        if(numBlack + numWhite > 40) {
+            int cnt = 3;
+            int sel = -1;
+            while(cnt > 0) {
+                cnt--;
+                sel = Constants.random.nextInt(128) % size;
+                int row = actionSet.get(sel) / 8;
+                int col = actionSet.get(sel) % 8;
+                if((state[0][0] != Chess && row < 2 && col < 2) || (state[7][0] != Chess && row > 5 && col < 2) || (state[7][7] != Chess && row > 5 && col > 5) || (state[0][7] != Chess && row < 2 && col > 5)) {
+                    continue;
+                }
+                break;
+            }
+            return actionSet.get(sel);
+        }
+        while (i < size) {
+            Integer a = actionSet.get(i);
+            int row = a / 8;
+            int col = a % 8;
+            if(Constants.weightMatrix[row][col] > maxReward) {
+                maxIndex = i;
+                maxReward = Constants.weightMatrix[row][col];
+            }
+            ++i;
+        }
+        return actionSet.get(maxIndex);
+        /*
         int size = actionSet.size();
         if(size == 0) {
             return -1;
@@ -326,6 +358,7 @@ public class State {
         //}
         //actionSet.remove(sel);
         return actionSet.get(sel);
+        */
     }
     private int findActionByDirection(int dir, int m, int n) {
         int first = -1;

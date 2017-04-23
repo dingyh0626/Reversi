@@ -201,7 +201,7 @@ public class WBGOGame extends JFrame{
 		newWbgoGame.setVisible(true);
 		newWbgoGame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		newWbgoGame.initializeGame();
-        newWbgoGame.machineFirst(true);
+        newWbgoGame.machineFirst(false);
 		//newWbgoGame.beginGame();
 
 	}
