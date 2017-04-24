@@ -278,16 +278,28 @@ public class State {
         int size = actionSet.size();
         int i = 0;
         int maxIndex = -1;
-        int maxReward = -100;
+        int maxReward = -10000;
         if(size == 0) {
             return -1;
         }
-        if(numBlack + numWhite > 40) {
+        if(actionSet.containsValue(0)) {
+            return 0;
+        }
+        if(actionSet.containsValue(7)) {
+            return 7;
+        }
+        if(actionSet.containsValue(56)) {
+            return 56;
+        }
+        if(actionSet.containsValue(63)) {
+            return 63;
+        }
+        if(numBlack + numWhite > 64) {
             int cnt = 3;
             int sel = -1;
             while(cnt > 0) {
                 cnt--;
-                sel = Constants.random.nextInt(128) % size;
+                sel = Constants.random.nextInt(1024) % size;
                 int row = actionSet.get(sel) / 8;
                 int col = actionSet.get(sel) % 8;
                 if((state[0][0] != Chess && row < 2 && col < 2) || (state[7][0] != Chess && row > 5 && col < 2) || (state[7][7] != Chess && row > 5 && col > 5) || (state[0][7] != Chess && row < 2 && col > 5)) {
@@ -297,6 +309,47 @@ public class State {
             }
             return actionSet.get(sel);
         }
+        State tmp = this.clone();
+        int W = getWeight(this.getState(), Chess);
+        ArrayList<Integer> list = new ArrayList<Integer>();
+        int min = 10000;
+        while (i < size) {
+            Integer a = actionSet.get(i);
+            tmp.changeState(a);
+            int w = getWeight(tmp.getState(), Chess);
+            int d = w - W ;
+            list.add(d);
+            if(min > d) {
+                min = d;
+            }
+            if(d > maxReward) {
+                maxIndex = i;
+            }
+            tmp.Reverse(this);
+            i++;
+        }
+        return actionSet.get(maxIndex);
+        /*
+        i = 0;
+
+        int sum = 0;
+        while(i < size) {
+            list.set(i, list.get(i) - min + 1);
+            sum += list.get(i);
+            i++;
+        }
+        int r = Constants.random.nextInt(10 * sum) % sum + 1;
+        i = 0;
+        sum = 0;
+        while(i < size) {
+            sum += list.get(i);
+            if(r <= sum) {
+                return actionSet.get(i);
+            }
+            i++;
+        }
+        return actionSet.get(maxIndex);
+        /*
         while (i < size) {
             Integer a = actionSet.get(i);
             int row = a / 8;
@@ -307,7 +360,8 @@ public class State {
             }
             ++i;
         }
-        return actionSet.get(maxIndex);
+        */
+        //return actionSet.get(maxIndex);
         /*
         int size = actionSet.size();
         if(size == 0) {
@@ -508,5 +562,29 @@ public class State {
     }
     public HashMap<Integer, Integer> getDirSet() {
         return dirSet;
+    }
+    private void Reverse(State last) {
+        for(int i = 0; i < 8; i++) {
+            for(int j = 0; j < 8; j++) {
+                state[i][j] = last.getState()[i][j];
+            }
+        }
+        this.isMachine = last.getIsMatchine();
+        this.Chess = last.getChess();
+        this.numBlack = last.numBlack;
+        this.numWhite = last.numWhite;
+        this.leadAction = last.leadAction;
+        //genActionSet();
+    }
+    private int getWeight(int[][] state, int chess) {
+        int w = 0;
+        for(int i = 0; i < 8; i++) {
+            for(int j = 0; j < 8; j++) {
+                if(state[i][j] == chess) {
+                    w += Constants.weightMatrix[i][j];
+                }
+            }
+        }
+        return w;
     }
 }

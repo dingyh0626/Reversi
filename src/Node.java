@@ -59,9 +59,10 @@ public class Node {
     public Node getBestChild(double c) {
         double MAX = -Double.MAX_VALUE;
         Node maxNode = null;
-        double m = isMachine ? 1.0 : -1.0;
+
         for (Node tmp: Children) {
-            double a = m * (double)tmp.Q / (double)tmp.N + c * Math.sqrt(2.0 * Math.log((double)N) / (double)tmp.N);
+            double m = isMachine ? 1.0 * (double)tmp.Q / (double)tmp.N : 1.0 - 1.0 * (double)tmp.Q / (double)tmp.N;
+            double a = m + c * Math.sqrt(2.0 * Math.log((double)N) / (double)tmp.N);
             if(MAX < a) {
                 maxNode = tmp;
                 MAX = a;
@@ -80,7 +81,7 @@ public class Node {
             Integer key = aset.get(size - 1);
             s.changeState(key);
             s.setLeadAction(key);
-            dset.remove(aset.get(size - 1));
+            //dset.remove(aset.get(size - 1));
             aset.remove(size - 1);
             s.changePlayer();
             //s.genActionSet(s.getChess());
