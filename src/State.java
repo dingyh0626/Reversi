@@ -323,6 +323,7 @@ public class State {
                 min = d;
             }
             if(d > maxReward) {
+                maxReward = d;
                 maxIndex = i;
             }
             tmp.Reverse(this);

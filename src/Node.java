@@ -61,7 +61,7 @@ public class Node {
         Node maxNode = null;
 
         for (Node tmp: Children) {
-            double m = isMachine ? 1.0 * (double)tmp.Q / (double)tmp.N : 1.0 - 1.0 * (double)tmp.Q / (double)tmp.N;
+            double m = isMachine ? 1.0 * (double)tmp.Q / (double)tmp.N : - 1.0 * (double)tmp.Q / (double)tmp.N;
             double a = m + c * Math.sqrt(2.0 * Math.log((double)N) / (double)tmp.N);
             if(MAX < a) {
                 maxNode = tmp;

@@ -17,7 +17,7 @@ public class Constants {
     public static final int BLACK = 1;
     public static final int WHITE = -1;
     public static final int machineProfit = 1;
-    public static final int playerProfit = 0;
+    public static final int playerProfit = -1;
     public static final Random random = new Random();
     public static final int[][] weightMatrix = {
             {99, -8, 8, 6, 6, 8, -8, 99},
