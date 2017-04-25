@@ -1,4 +1,6 @@
 import javax.swing.text.html.CSS;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by zjhnd on 2017/4/5.
@@ -7,8 +9,8 @@ public class Mcts {
     private static final long Budget = 3000;
     public Mcts() {
     }
-    State UctSearch(State s) {
-        Node root = new Node(s);
+    public Node UctSearch(Node root) {
+        //Node root = new Node(s);
         long start = System.currentTimeMillis();
         int cnt = 0;
         while(System.currentTimeMillis() - start <= Budget) {
@@ -21,14 +23,16 @@ public class Mcts {
             //}
         }
         System.out.println("Simulation times: " + cnt);
-        Node node = BestChild(root, 1.4);
+        Node node = BestChild(root, 1.0);
         double num1 = (double)node.getQ() / (double)node.getN();
         double num2 = Math.sqrt(2.0) * Math.sqrt(2.0 * Math.log((double)root.getN()) / (double)node.getN());
         System.out.println(node.getQ() + " " + node.getN() + " " + num1 + " " + num2);
         //(double)tmp.Q / (double)tmp.N + c * Math.sqrt(2.0 * Math.log((double)N) / (double)tmp.N);
-        State res = node.cloneState();
+        State res = node.getState();
         res.genActionSet();
-        return res;
+        System.out.println(root.getN());
+        System.out.println("Black:" + res.getNumBlack() + " " + "White:" + res.getNumWhite());
+        return node;
     }
     public Node TreePolicy(Node node) {
         Node v = node;
@@ -38,7 +42,7 @@ public class Mcts {
                 return c;
             }
             else {
-                v = BestChild(v, 1.4);
+                v = BestChild(v, 1.0);
             }
         }
         return v;
@@ -46,18 +50,12 @@ public class Mcts {
     public int DefaultPolicy(Node node) {
         State s = node.cloneState();
         s.genActionSet();
-        //Node p = node;
-        //Node child;
         while(!s.isTerminal()) {
             int action = s.getRandomAction();
             if(action != -1) {
                 s.changeState(action);
             }
             s.changePlayer();
-            //s.Judge();
-            //child = new Node(s);
-            //child.setParent(p);
-            //p = child;
         }
         int winner = s.getWinner();
         if(winner == 0) {

@@ -10,17 +10,21 @@ public class Node {
     private int N = 0;
     private int Q = 0;
     private LinkedList<Node> Children = new LinkedList<Node>();
-
-
+    public State getState() {
+        return state;
+    }
+    public int getLeadAction() {
+        return state.getLeadAction();
+    }
     public Node(int Chess, boolean isMachine) {
         state = new State(isMachine, Chess);
-        state.Judge();
+        //state.Judge();
         this.Chess = Chess;
         this.isMachine = isMachine;
     }
     public Node(int[][] s, int Chess, boolean isMachine) {
         state = new State(s, isMachine, Chess);
-        state.Judge();
+        //state.Judge();
         this.Chess = Chess;
         this.isMachine = isMachine;
     }
@@ -72,20 +76,15 @@ public class Node {
     }
     public Node Expand() {
         HashMap<Integer, Integer> aset = state.getActionSet();
-        HashMap<Integer, Integer> dset = state.getDirSet();
         Node child = null;
-
         int size = aset.size();
         if(size > 0) {
             State s = state.clone();
             Integer key = aset.get(size - 1);
             s.changeState(key);
             s.setLeadAction(key);
-            //dset.remove(aset.get(size - 1));
             aset.remove(size - 1);
             s.changePlayer();
-            //s.genActionSet(s.getChess());
-            //s.Judge();
             child = new Node(s);
             child.setParent(this);
             addChild(child);
@@ -97,6 +96,7 @@ public class Node {
                 //s.genActionSet(s.getChess());
                 //s.Judge();
                 child = new Node(s);
+                s.setLeadAction(-1);
                 child.setParent(this);
                 addChild(child);
             }

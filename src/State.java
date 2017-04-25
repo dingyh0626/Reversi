@@ -51,7 +51,18 @@ public class State {
             {-1, -1, -1, -1, -1, -1, -1,  0},
     };
     */
-
+    /*
+    private int[][] state = {
+            {0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 1, 0, 0, 0},
+            {0, 0, 0, 0, 0, -1, 0, 0},
+            {0, 0, 0, 0, 1, 0, -1, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 1, 0, 0},
+            {0, 0, 0, 0, 0, -1, 0, 0},
+            {0, 0, 0, -1, -1, 0, 0, 0},
+    };
+    */
     private int[][] state = {
             {0, 0, 0, 0, 0, 0, 0, 0},
             {0, 0, 0, 0, 0, 0, 0, 0},
@@ -63,6 +74,12 @@ public class State {
             {0, 0, 0, 0, 0, 0, 0, 0},
     };
 
+    public int getNumBlack() {
+        return numBlack;
+    }
+    public int getNumWhite() {
+        return numWhite;
+    }
     public State(boolean isMachine, int Chess) {
         this.isMachine = isMachine;
         this.Chess = Chess;
@@ -91,87 +108,32 @@ public class State {
     public void genActionSet() {
         actionSet.clear();
         dirSet.clear();
-        /*
+        terminal = true;
+        int no = 0;
         for(int i = 0; i < 8; i++) {
             for(int j = 0; j < 8; j++) {
-                if(state[i][j] == Chess) {
-                    int m = i;
-                    int n = j;
-                    while(++m < 8 && ++n < 8 && state[m][n] + Chess == 0);
-                    if(m < 8 && n < 8 && state[m][n] == 0 && (Math.abs(m - i) > 1 || Math.abs(n - j) > 1)) {
-                        int a = 8 * m + n;
-                        if(!actionSet.contains(a)) {
-                            actionSet.add(a);
+                if(state[i][j] == 0) {
+                    int action = i * 8 + j;
+                    boolean flag = false;
+                    for(int dir = Constants.NORTH; dir <= Constants.NORTHWEST; dir <<= 1) {
+                        int res = findActionByDirection(dir, i, j);
+                        if(res == 0) {
+                            continue;
                         }
+                        if(res == 2) {
+                            action |= dir;
+                            flag = true;
+                        }
+                        terminal = false;
                     }
-                    m = i;
-                    n = j;
-                    while(++m < 8 && --n > -1 && state[m][n] + Chess == 0);
-                    if(m < 8 && n > -1 && state[m][n] == 0 && (Math.abs(m - i) > 1 || Math.abs(n - j) > 1)) {
-                        int a = 8 * m + n;
-                        if(!actionSet.contains(a)) {
-                            actionSet.add(a);
-                        }
-                    }
-                    m = i;
-                    n = j;
-                    while(--m > -1 && ++n < 8 && state[m][n] + Chess == 0);
-                    if(m > -1 && n < 8 && state[m][n] == 0 && (Math.abs(m - i) > 1 || Math.abs(n - j) > 1)) {
-                        int a = 8 * m + n;
-                        if(!actionSet.contains(a)) {
-                            actionSet.add(a);
-                        }
-                    }
-                    m = i;
-                    n = j;
-                    while(--m > -1 && --n > -1 && state[m][n] + Chess == 0);
-                    if(m > -1 && n > -1 && state[m][n] == 0 && (Math.abs(m - i) > 1 || Math.abs(n - j) > 1)) {
-                        int a = 8 * m + n;
-                        if(!actionSet.contains(a)) {
-                            actionSet.add(a);
-                        }
-                    }
-                    m = i;
-                    n = j;
-                    while(++n < 8 && state[m][n] + Chess == 0);
-                    if(n < 8 && state[m][n] == 0 && (Math.abs(m - i) > 1 || Math.abs(n - j) > 1)) {
-                        int a = 8 * m + n;
-                        if(!actionSet.contains(a)) {
-                            actionSet.add(a);
-                        }
-                    }
-                    m = i;
-                    n = j;
-                    while(--n > -1 && state[m][n] + Chess == 0);
-                    if(n > -1 && state[m][n] == 0 && (Math.abs(m - i) > 1 || Math.abs(n - j) > 1)) {
-                        int a = 8 * m + n;
-                        if(!actionSet.contains(a)) {
-                            actionSet.add(a);
-                        }
-                    }
-                    m = i;
-                    n = j;
-                    while(++m < 8 && state[m][n] + Chess == 0);
-                    if(m < 8 && state[m][n] == 0 && (Math.abs(m - i) > 1 || Math.abs(n - j) > 1)) {
-                        int a = 8 * m + n;
-                        if(!actionSet.contains(a)) {
-                            actionSet.add(a);
-                        }
-                    }
-                    m = i;
-                    n = j;
-                    while(--m > -1 && state[m][n] + Chess == 0);
-                    if(m > -1 && state[m][n] == 0 && (Math.abs(m - i) > 1 || Math.abs(n - j) > 1)) {
-                        int a = 8 * m + n;
-                        if(!actionSet.contains(a)) {
-                            actionSet.add(a);
-                        }
+                    if(flag) {
+                        actionSet.put(no, action & Constants.Position);
+                        dirSet.put(action & Constants.Position, action & Constants.Direction);
+                        no++;
                     }
                 }
             }
         }
-        */
-        Judge();
     }
     public void changeState(int action) {
         int dir = dirSet.get(action);
@@ -266,22 +228,68 @@ public class State {
         }
         if(Chess == Constants.BLACK) {
             numBlack += cnt;
+            numWhite -= (cnt - 1);
         }
         else {
             numWhite += cnt;
+            numBlack -= (cnt - 1);
         }
     }
     public HashMap<Integer, Integer> getActionSet() {
         return actionSet;
     }
     public int getRandomAction() {
+        /*
         int size = actionSet.size();
-        int i = 0;
-        int maxIndex = -1;
-        int maxReward = -10000;
         if(size == 0) {
             return -1;
         }
+        if(numBlack + numWhite < 50) {
+            int ret;
+            if((ret = strategyCorner()) != -1) {
+                return ret;
+            }
+            if((ret = strategyEdge()) != -1) {
+                return ret;
+            }
+            return strategyWeightedMatrix();
+        }
+        return strategyMaxScore();
+        */
+        int size = actionSet.size();
+        int i = 0;
+        int maxIndex = -1;
+        int maxReward = -100;
+        if(size == 0) {
+            return -1;
+        }
+        if(numBlack + numWhite > 50) {
+            int cnt = 3;
+            int sel = -1;
+            while(cnt > 0) {
+                cnt--;
+                sel = Constants.random.nextInt(128) % size;
+                int row = actionSet.get(sel) / 8;
+                int col = actionSet.get(sel) % 8;
+                if((state[0][0] != Chess && row < 2 && col < 2) || (state[7][0] != Chess && row > 5 && col < 2) || (state[7][7] != Chess && row > 5 && col > 5) || (state[0][7] != Chess && row < 2 && col > 5)) {
+                    continue;
+                }
+                break;
+            }
+            return actionSet.get(sel);
+        }
+        while (i < size) {
+            Integer a = actionSet.get(i);
+            int row = a / 8;
+            int col = a % 8;
+            if(Constants.weightMatrix[row][col] > maxReward) {
+                maxIndex = i;
+                maxReward = Constants.weightMatrix[row][col];
+            }
+            ++i;
+        }
+        return actionSet.get(maxIndex);
+        /*
         if(actionSet.containsValue(0)) {
             return 0;
         }
@@ -294,6 +302,33 @@ public class State {
         if(actionSet.containsValue(63)) {
             return 63;
         }
+        while (i < size) {
+            Integer a = actionSet.get(i);
+            ++i;
+            int row = a / 8;
+            int col = a % 8;
+            if((state[0][0] != Chess && row < 2 && col < 2) || (state[7][0] != Chess && row > 5 && col < 2) || (state[7][7] != Chess && row > 5 && col > 5) || (state[0][7] != Chess && row < 2 && col > 5)) {
+                continue;
+            }
+            if(col == 0 || col == 7 || row == 0 || row ==7) {
+                return a;
+            }
+        }
+
+        int cnt = 4;
+        int sel;
+        while(cnt > 0) {
+            cnt--;
+            sel = Constants.random.nextInt(128) % size;
+            int row = actionSet.get(sel) / 8;
+            int col = actionSet.get(sel) % 8;
+            if((state[0][0] != Chess && row < 2 && col < 2) || (state[7][0] != Chess && row > 5 && col < 2) || (state[7][7] != Chess && row > 5 && col > 5) || (state[0][7] != Chess && row < 2 && col > 5)) {
+                continue;
+            }
+            return actionSet.get(sel);
+        }
+        */
+        /*
         if(numBlack + numWhite > 64) {
             int cnt = 3;
             int sel = -1;
@@ -309,16 +344,24 @@ public class State {
             }
             return actionSet.get(sel);
         }
+        */
+        /*
+        int size = actionSet.size();
+        int i = 0;
+        int maxIndex = -1;
+        int maxReward = -10000;
+        if(size == 0) {
+            return -1;
+        }
         State tmp = this.clone();
         int W = getWeight(this.getState(), Chess);
-        ArrayList<Integer> list = new ArrayList<Integer>();
         int min = 10000;
+        i = 0;
         while (i < size) {
             Integer a = actionSet.get(i);
             tmp.changeState(a);
             int w = getWeight(tmp.getState(), Chess);
             int d = w - W ;
-            list.add(d);
             if(min > d) {
                 min = d;
             }
@@ -326,13 +369,16 @@ public class State {
                 maxReward = d;
                 maxIndex = i;
             }
+            if(tmp.getActionSet().size() <= 1) {
+                return a;
+            }
             tmp.Reverse(this);
             i++;
         }
         return actionSet.get(maxIndex);
+        */
         /*
         i = 0;
-
         int sum = 0;
         while(i < size) {
             list.set(i, list.get(i) - min + 1);
@@ -349,71 +395,8 @@ public class State {
             }
             i++;
         }
-        return actionSet.get(maxIndex);
-        /*
-        while (i < size) {
-            Integer a = actionSet.get(i);
-            int row = a / 8;
-            int col = a % 8;
-            if(Constants.weightMatrix[row][col] > maxReward) {
-                maxIndex = i;
-                maxReward = Constants.weightMatrix[row][col];
-            }
-            ++i;
-        }
         */
-        //return actionSet.get(maxIndex);
-        /*
-        int size = actionSet.size();
-        if(size == 0) {
-            return -1;
-        }
-        if(actionSet.containsValue(0)) {
-            return 0;
-        }
-        if(actionSet.containsValue(7)) {
-            return 7;
-        }
-        if(actionSet.containsValue(56)) {
-            return 56;
-        }
-        if(actionSet.containsValue(63)) {
-            return 63;
-        }
 
-        int i = 0;
-        while (i < size) {
-            Integer a = actionSet.get(i);
-            ++i;
-            int row = a / 8;
-            int col = a % 8;
-            if((state[0][0] != Chess && row < 2 && col < 2) || (state[7][0] != Chess && row > 5 && col < 2) || (state[7][7] != Chess && row > 5 && col > 5) || (state[0][7] != Chess && row < 2 && col > 5)) {
-                continue;
-            }
-            if(col == 0 || col == 7 || row == 0 || row ==7) {
-                return a;
-            }
-        }
-
-        int cnt = 3;
-        int sel = -1;
-        while(cnt > 0) {
-            cnt--;
-            sel = Constants.random.nextInt(128) % size;
-            int row = actionSet.get(sel) / 8;
-            int col = actionSet.get(sel) % 8;
-            if((state[0][0] != Chess && row < 2 && col < 2) || (state[7][0] != Chess && row > 5 && col < 2) || (state[7][7] != Chess && row > 5 && col > 5) || (state[0][7] != Chess && row < 2 && col > 5)) {
-                continue;
-            }
-            break;
-        }
-
-        //if(sel == 9 || sel == 14 || sel == 49 || sel == 54) {
-            //sel = r.nextInt(256) % size;
-        //}
-        //actionSet.remove(sel);
-        return actionSet.get(sel);
-        */
     }
     private int findActionByDirection(int dir, int m, int n) {
         int first = -1;
@@ -471,34 +454,7 @@ public class State {
         }
         return 0;
     }
-    public void Judge() {
-        terminal = true;
-        int no = 0;
-        for(int i = 0; i < 8; i++) {
-            for(int j = 0; j < 8; j++) {
-                if(state[i][j] == 0) {
-                    int action = i * 8 + j;
-                    boolean flag = false;
-                    for(int dir = Constants.NORTH; dir <= Constants.NORTHWEST; dir <<= 1) {
-                        int res = findActionByDirection(dir, i, j);
-                        if(res == 0) {
-                            continue;
-                        }
-                        if(res == 2) {
-                            action |= dir;
-                            flag = true;
-                        }
-                        terminal = false;
-                    }
-                    if(flag) {
-                        actionSet.put(no, action & Constants.Position);
-                        dirSet.put(action & Constants.Position, action & Constants.Direction);
-                        no++;
-                    }
-                }
-            }
-        }
-    }
+
     public boolean isTerminal() {
         return terminal;
     }
@@ -587,5 +543,162 @@ public class State {
             }
         }
         return w;
+    }
+    private int strategyWeightedMatrix() {
+        int size = actionSet.size();
+        State tmp = this.clone();
+        int i = 0;
+        int maxIndex = -1;
+        int maxReward = -10000;
+        while (i < size) {
+            Integer a = actionSet.get(i);
+            tmp.changeState(a);
+            int w = getWeight(tmp.getState(), Chess);
+            if(w > maxReward) {
+                maxReward = w;
+                maxIndex = i;
+            }
+            if(tmp.getActionSet().size() <= 1) {
+                return a;
+            }
+            tmp.Reverse(this);
+            i++;
+        }
+        return actionSet.get(maxIndex);
+    }
+    private int strategyMaxScore() {
+        int size = actionSet.size();
+        State tmp = this.clone();
+        int orig = (Chess == 1 ? numBlack : numWhite);
+        int i = 0;
+        int maxIndex = -1;
+        int maxScore = -10000;
+        while (i < size) {
+            Integer a = actionSet.get(i);
+            tmp.changeState(a);
+            int n = (Chess == 1 ? tmp.getNumBlack() : tmp.getNumWhite());
+            if(n > maxScore) {
+                maxScore = n;
+                maxIndex = i;
+            }
+            tmp.Reverse(this);
+            i++;
+        }
+        return actionSet.get(maxIndex);
+    }
+    int strategyCorner() {
+        if(actionSet.containsValue(0)) {
+            return 0;
+        }
+        if(actionSet.containsValue(7)) {
+            return 7;
+        }
+        if(actionSet.containsValue(56)) {
+            return 56;
+        }
+        if(actionSet.containsValue(63)) {
+            return 63;
+        }
+        return -1;
+    }
+    int strategyEdge() {
+        int i = 0;
+        int size = actionSet.size();
+        State tmp = this.clone();
+        while (i < size) {
+            Integer a = actionSet.get(i);
+            ++i;
+            int row = a / 8;
+            int col = a % 8;
+            if(col == 0 || col == 7) {
+                boolean good = true;
+                boolean flag = false;
+                tmp.changeState(a);
+                int j = row;
+                while(j > 0) {
+                    j--;
+                    if(tmp.getState()[j][col] == 0) {
+                        if(j - 1 >= 0) {
+                            if(tmp.getState()[j - 1][col] == Chess) {
+                                flag = true;
+                            }
+                        }
+                        break;
+                    }
+                    if(tmp.getState()[j][col] == -Chess) {
+                        good  = !good;
+                        break;
+                    }
+                }
+                if(j == 0 && state[j][col] == Chess) {
+                    return a;
+                }
+                j = row;
+                while(j < 7) {
+                    j++;
+                    if(tmp.getState()[j][col] == 0) {
+                        if(j + 1 <= 7) {
+                            if(tmp.getState()[j + 1][col] == Chess) {
+                                flag = true;
+                            }
+                        }
+                        break;
+                    }
+                    if(tmp.getState()[j][col] == -Chess) {
+                        good  = !good;
+                        break;
+                    }
+                }
+                if(!flag && (good || (j == 7 && state[j][col] == Chess))) {
+                    return a;
+                }
+                tmp.Reverse(this);
+            }
+            if(row == 0 || row == 7) {
+                boolean good = true;
+                boolean flag = false;
+                tmp.changeState(a);
+                int j = col;
+                while(j > 0) {
+                    j--;
+                    if(tmp.getState()[row][j] == 0) {
+                        if(j - 1 >= 0) {
+                            if(tmp.getState()[row][j - 1] == Chess) {
+                                flag = true;
+                            }
+                        }
+                        break;
+                    }
+                    if(tmp.getState()[row][j] == -Chess) {
+                        good  = !good;
+                        break;
+                    }
+                }
+                if(j == 0 && state[row][j] == Chess) {
+                    return a;
+                }
+                j = col;
+                while(j < 7) {
+                    j++;
+                    if(tmp.getState()[row][j] == 0) {
+                        if(j + 1 <= 7) {
+                            if(tmp.getState()[row][j + 1] == Chess) {
+                                flag = true;
+                            }
+                        }
+                        break;
+                    }
+                    if(tmp.getState()[row][j] == -Chess) {
+                        good  = !good;
+                        break;
+                    }
+                }
+                if(!flag && (good || (j == 7 && state[row][j] == Chess))) {
+                    return a;
+                }
+                tmp.Reverse(this);
+            }
+        }
+        return -1;
     }
 }

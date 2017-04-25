@@ -23,6 +23,7 @@ public class WBGOGame extends JFrame{
 	private static board gameboard = new board();
 	private State state;
 	private Mcts mcts = new Mcts();
+	private Node root;
 	public WBGOGame() {
 		// TODO Auto-generated constructor stub
 
@@ -72,51 +73,89 @@ public class WBGOGame extends JFrame{
                     return;
                 }
 
-                boolean flag = false;
+
 				if(gameboard.playable(x - 1, y - 1, playerturn)) {
 					gameboard.setValueByindex(x - 1, y - 1, playerturn);
 					gameboard.setNewChessIndex(x - 1, y - 1);
                     gameboard.repaint();
-					//int a = -1;
-					Iterator iter = state.getActionSet().entrySet().iterator();
 
-					//while (iter.hasNext()) {
-					//	Map.Entry entry = (Map.Entry)iter.next();
-					//	int t =
-					//	if((t & Constants.Position) == action) {
-					//		a = t;
-					//		break;
-					//	}
-					//}
 					state.changeState(action);
-                    state.changePlayer();
-                    playerturn = -playerturn;
-                    if(state.isTerminal()) {
-                        System.out.println("Winner: " + state.getWinner());
-                        return;
-                    }
+					state.changePlayer();
+					playerturn = -playerturn;
+					if(state.isTerminal()) {
+						System.out.println("Winner: " + state.getWinner());
+						return;
+					}
+					boolean flag = false;
+					for (Node c: root.getChildren()) {
+						if(c.getLeadAction() == action) {
+							root = c;
+							state.genActionSet();
+							flag = true;
+							break;
+						}
+					}
+					if(!flag) {
+						root = new Node(state);
+					}
+
 					Thread thread = new Thread(new Runnable() {
                         @Override
                         public void run() {
                             while (true) {
                                 if(state.getActionSet().size() == 0) {
+									boolean flag = false;
+									for (Node c: root.getChildren()) {
+										if(c.getLeadAction() == -1) {
+											root = c;
+											//state = root.getState();
+											flag = true;
+											break;
+										}
+									}
+									if(!flag) {
+										root = new Node(state);
+									}
                                     state.changePlayer();
                                     playerturn = -playerturn;
                                     if(state.getActionSet().size() == 0) {
-                                        System.out.println("Winner: " + state.getWinner());
+                                       System.out.println("Winner: " + state.getWinner());
                                     }
                                     break;
                                 }
                                 else {
-                                    state = mcts.UctSearch(state);
+                                    root = mcts.UctSearch(root);
+                                    state.changeState(root.getLeadAction());
+                                    state.changePlayer();
+									playerturn = -playerturn;
                                     setBoard(state);
 									//gameboard.setValueByindex(state.getLeadAction() / 8, state.getLeadAction() % 8, playerturn);
                                     gameboard.setNewChessIndex(state.getLeadAction() / 8, state.getLeadAction() % 8);
                                     gameboard.repaint();
-                                    playerturn = -playerturn;
+
                                     if(state.getActionSet().size() == 0) {
-                                        playerturn = -playerturn;
-                                        state.changePlayer();
+										boolean flag = false;
+										for (Node c: root.getChildren()) {
+											if(c.getLeadAction() == -1) {
+												root = c;
+												//state = root.getState();
+												flag = true;
+												break;
+											}
+										}
+										if(!flag) {
+											root = new Node(state);
+										}
+										//state.changeState(action);
+										state.changePlayer();
+										playerturn = -playerturn;
+										if(state.isTerminal()) {
+											System.out.println("Winner: " + state.getWinner());
+											return;
+										}
+
+                                        //playerturn = -playerturn;
+                                        //state.changePlayer();
                                         continue;
                                     }
                                     else {
@@ -147,13 +186,16 @@ public class WBGOGame extends JFrame{
 	private void machineFirst(boolean flag) {
 		if(flag) {
 			state = new State(true, Constants.BLACK);
-			state = mcts.UctSearch(state);
+			root = new Node(state);
+			root = mcts.UctSearch(root);
+			state = root.getState();
 			setBoard(state);
 			isMachine = false;
 			playerturn = whiteplayer;
 		}
 		else {
 			state = new State(false, Constants.BLACK);
+			root = new Node(state);
 			setBoard(state);
 			isMachine = false;
 			playerturn = blackplayer;
