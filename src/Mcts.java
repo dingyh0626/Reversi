@@ -14,24 +14,31 @@ public class Mcts {
         long start = System.currentTimeMillis();
         int cnt = 0;
         while(System.currentTimeMillis() - start <= Budget) {
-            Node v = TreePolicy(root);
-            int reward = DefaultPolicy(v);
-            Backup(v, reward);
+            //Node v = TreePolicy(root);
+            //int reward = DefaultPolicy(v);
+            //Backup(v, reward);
+            Simulation(root);
             cnt++;
             //if(v.isTerminal()) {
                 //break;
             //}
         }
         System.out.println("Simulation times: " + cnt);
-        Node node = BestChild(root, 1.0);
-        double num1 = (double)node.getQ() / (double)node.getN();
-        double num2 = Math.sqrt(2.0) * Math.sqrt(2.0 * Math.log((double)root.getN()) / (double)node.getN());
-        System.out.println(node.getQ() + " " + node.getN() + " " + num1 + " " + num2);
-        //(double)tmp.Q / (double)tmp.N + c * Math.sqrt(2.0 * Math.log((double)N) / (double)tmp.N);
-        State res = node.getState();
-        res.genActionSet();
         System.out.println(root.getN());
-        System.out.println("Black:" + res.getNumBlack() + " " + "White:" + res.getNumWhite());
+        for(Node c: root.getChildren()) {
+            double num1 = (double)c.getQ() / (double)c.getN();
+            double num2 = 1.4 * Math.sqrt(2.0 * Math.log((double)c.getN()) / (double)c.getN());
+            System.out.println(c.getQ() + " " + c.getN() + " " + num1 + " " + num2);
+        }
+        Node node = BestChild(root, 0.8);
+        double num1 = (double)node.getQ() / (double)node.getN();
+        double num2 = 1.4 * Math.sqrt(2.0 * Math.log((double)root.getN()) / (double)node.getN());
+        System.out.println("Best Child: " + node.getQ() + " " + node.getN() + " " + num1 + " " + num2);
+        //(double)tmp.Q / (double)tmp.N + c * Math.sqrt(2.0 * Math.log((double)N) / (double)tmp.N);
+        //State res = node.getState();
+        //res.genActionSet();
+
+        //System.out.println("Black:" + res.getNumBlack() + " " + "White:" + res.getNumWhite());
         return node;
     }
     public Node TreePolicy(Node node) {
@@ -42,11 +49,17 @@ public class Mcts {
                 return c;
             }
             else {
-                v = BestChild(v, 1.0);
+                v = BestChild(v, 0.8);
             }
         }
         return v;
     }
+    public void Simulation(Node root) {
+        Node v = TreePolicy(root);
+        int reward = DefaultPolicy(v);
+        Backup(v, reward);
+    }
+
     public int DefaultPolicy(Node node) {
         State s = node.cloneState();
         s.genActionSet();

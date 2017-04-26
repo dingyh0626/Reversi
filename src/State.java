@@ -264,6 +264,7 @@ public class State {
             return -1;
         }
         if(numBlack + numWhite > 50) {
+            /*
             int cnt = 3;
             int sel = -1;
             while(cnt > 0) {
@@ -277,7 +278,11 @@ public class State {
                 break;
             }
             return actionSet.get(sel);
+            */
+            //return strategyMaxScore();
+            return actionSet.get(Constants.random.nextInt(2048) % size);
         }
+        int min = 1000;
         while (i < size) {
             Integer a = actionSet.get(i);
             int row = a / 8;
@@ -286,7 +291,31 @@ public class State {
                 maxIndex = i;
                 maxReward = Constants.weightMatrix[row][col];
             }
+            if(Constants.weightMatrix[row][col] < min) {
+                min = Constants.weightMatrix[row][col];
+            }
             ++i;
+        }
+        i = 0;
+        int sum = 0;
+        while(i  < size) {
+            Integer a = actionSet.get(i);
+            int row = a / 8;
+            int col = a % 8;
+            sum += Constants.weightMatrix[row][col] - min + 1;
+            i++;
+        }
+        int r = Constants.random.nextInt(4096) % sum + 1;
+        sum = 0;
+        while(i < size) {
+            Integer a = actionSet.get(i);
+            int row = a / 8;
+            int col = a % 8;
+            sum += Constants.weightMatrix[row][col] - min + 1;
+            if(r <= sum) {
+                return a;
+            }
+            i++;
         }
         return actionSet.get(maxIndex);
         /*
